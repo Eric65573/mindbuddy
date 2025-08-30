@@ -1,4 +1,3 @@
-# Super-Enhanced MindBuddy - AI Mental Health Chatbot
 import random
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.naive_bayes import MultinomialNB
@@ -7,55 +6,24 @@ print("Hello! I am MindBuddy, your AI mental health chatbot.")
 print("You can talk to me about how you're feeling today.")
 print("Type 'quit' to exit.\n")
 
-# Expanded training sentences
+# Training data - expanded keywords and emotional sentences
 training_sentences = [
-    # Emotional phrases
-    "I am feeling sad", "I feel unhappy", "I am depressed", "so sad", "very sad", "extremely sad",
-    "I am anxious", "I feel nervous", "I am worried", "so anxious", "very anxious", "totally anxious",
-    "I am happy", "I feel joyful", "I am excited", "super happy", "very happy", "extremely happy",
-    "I am stressed", "I feel overwhelmed", "I have a lot of pressure", "totally stressed", "very stressed",
-    "I am angry", "I feel frustrated", "I am mad", "so angry", "very angry",
-    "I am tired", "I feel exhausted", "I am sleepy", "so tired", "completely exhausted",
-    # Greetings
-    "hi", "hello", "hey", "good morning", "good afternoon", "good evening", "yo", "hiya", "greetings", "howdy",
-    # Small talk / chit chat
-    "how are you", "how's it going", "how are you doing", "what's up", "how have you been",
-    "what are you doing", "what's new", "how's your day", "how's life",
-    # Gratitude
-    "thank you", "thanks", "thanks a lot", "thank you so much", "thx", "much appreciated", "thanks buddy",
-    # Affirmations
-    "yes", "yeah", "yep", "sure", "absolutely", "definitely", "of course", "roger", "correct", "true",
-    # Negations
-    "no", "nope", "nah", "not really", "never", "incorrect", "false",
-    # Help/Advice
-    "help me", "what should I do", "any advice", "can you help", "what can I do", "give me tips",
-    # Fun / Casual
-    "lol", "haha", "hahaha", "omg", "wow", "yikes", "oops"
+    # Emotions
+    "I am feeling sad","I feel unhappy","I am depressed","so sad","very sad","extremely sad",
+    "I am anxious","I feel nervous","I am worried","so anxious","very anxious","totally anxious",
+    "I am happy","I feel joyful","I am excited","super happy","very happy","extremely happy",
+    "I am stressed","I feel overwhelmed","I have a lot of pressure","totally stressed","very stressed",
+    "I am angry","I feel frustrated","I am mad","so angry","very angry",
+    "I am tired","I feel exhausted","I am sleepy","so tired","completely exhausted",
 ]
 
-# Corresponding labels
 training_labels = [
-    # Emotional labels
     "sad","sad","sad","sad","sad","sad",
     "anxious","anxious","anxious","anxious","anxious","anxious",
     "happy","happy","happy","happy","happy","happy",
     "stress","stress","stress","stress","stress",
     "angry","angry","angry","angry","angry",
-    "tired","tired","tired","tired","tired",
-    # Greetings
-    "greeting","greeting","greeting","greeting","greeting","greeting","greeting","greeting","greeting","greeting",
-    # Small talk
-    "smalltalk","smalltalk","smalltalk","smalltalk","smalltalk","smalltalk","smalltalk","smalltalk","smalltalk",
-    # Gratitude
-    "gratitude","gratitude","gratitude","gratitude","gratitude","gratitude","gratitude",
-    # Affirmations
-    "affirmation","affirmation","affirmation","affirmation","affirmation","affirmation","affirmation","affirmation","affirmation","affirmation",
-    # Negations
-    "negation","negation","negation","negation","negation","negation","negation",
-    # Help / Advice
-    "help","help","help","help","help","help",
-    # Fun / Casual
-    "fun","fun","fun","fun","fun","fun","fun"
+    "tired","tired","tired","tired","tired"
 ]
 
 # Train ML model
@@ -64,7 +32,7 @@ X_train = vectorizer.fit_transform(training_sentences)
 model = MultinomialNB()
 model.fit(X_train, training_labels)
 
-# Responses dictionary
+# Responses
 responses = {
     "sad":[
         "I'm sorry you're feeling sad. Do you want to talk about it?",
@@ -129,12 +97,8 @@ responses = {
         "Happy to help! Do you want to talk more?",
         "You're welcome! Let's keep chatting if you want."
     ],
-    "affirmation":[
-        "Great!", "Awesome!", "Good to hear!", "Nice!", "Fantastic!"
-    ],
-    "negation":[
-        "That's okay.", "No worries.", "Understood.", "Alright.", "Okay."
-    ],
+    "affirmation":["Great!","Awesome!","Good to hear!","Nice!","Fantastic!"],
+    "negation":["That's okay.","No worries.","Understood.","Alright.","Okay."],
     "help":[
         "Sure, tell me what's going on. How can I help?",
         "I'm here to help. What's troubling you?",
@@ -142,9 +106,7 @@ responses = {
         "I can give tips or just listen. What would you like?",
         "Don't worry, I'm listening. How can I support you?"
     ],
-    "fun":[
-        "Haha, that's funny!", "LOL!", "That's interesting!", "Wow!", "Yikes!"
-    ],
+    "fun":["Haha, that's funny!","LOL!","That's interesting!","Wow!","Yikes!"],
     "sad_anxious":[
         "It seems you're feeling both sad and anxious. Take a deep breath. Want to talk about it?",
         "Sadness and anxiety together can feel overwhelming. I'm here for you.",
@@ -168,10 +130,21 @@ responses = {
     ]
 }
 
-# Dual emotion detection
+# Keyword matching first
+keywords = {
+    "greeting": ["hi","hello","hey","good morning","good afternoon","good evening","yo","hiya","greetings","howdy"],
+    "smalltalk": ["how are you","how's it going","what's up","how have you been","what's new","how's your day","how's life"],
+    "gratitude": ["thank you","thanks","thanks a lot","thank you so much","thx","much appreciated","thanks buddy"],
+    "affirmation": ["yes","yeah","yep","sure","absolutely","definitely","of course","roger","correct","true"],
+    "negation": ["no","nope","nah","not really","never","incorrect","false"],
+    "help": ["help me","what should I do","any advice","can you help","what can I do","give me tips"],
+    "fun": ["lol","haha","hahaha","omg","wow","yikes","oops"]
+}
+
+# Detect dual emotions
 def detect_dual_emotion(user_input):
     emotions = []
-    for key in ["sad", "happy", "stress", "anxious", "angry", "tired"]:
+    for key in ["sad","happy","stress","anxious","angry","tired"]:
         if key in user_input:
             emotions.append(key)
     if len(emotions) == 2:
@@ -180,7 +153,16 @@ def detect_dual_emotion(user_input):
             return random.choice(responses[combo])
     return None
 
-# Chat loop
+# Detect keyword
+def keyword_match(user_input):
+    user_input = user_input.lower()
+    for category, words in keywords.items():
+        for word in words:
+            if word in user_input:
+                return category
+    return None
+
+# Main chat loop
 while True:
     user_input = input("You: ").lower()
     if user_input == "quit":
@@ -193,15 +175,21 @@ while True:
         print("MindBuddy:", dual_response)
         continue
 
-    # Predict with ML
+    # Check keywords first
+    matched_category = keyword_match(user_input)
+    if matched_category:
+        response = random.choice(responses.get(matched_category,responses["default"]))
+        print("MindBuddy:", response)
+        continue
+
+    # ML prediction fallback
     X_input = vectorizer.transform([user_input])
     probs = model.predict_proba(X_input)[0]
     predicted_emotion = model.classes_[probs.argmax()]
 
-    # Use default if model is unsure
-    if probs.max() < 0.5:
+    if probs.max() < 0.2:
         response = random.choice(responses["default"])
     else:
-        response = random.choice(responses.get(predicted_emotion, responses["default"]))
+        response = random.choice(responses.get(predicted_emotion,responses["default"]))
 
     print("MindBuddy:", response)
